@@ -48,12 +48,20 @@ export function* handleFetch(dataProvider, action) {
             requestPayload: payload,
             meta: {
                 ...meta,
-                ...onSuccess,
                 fetchResponse: restType,
                 fetchStatus: FETCH_END,
             },
         });
         yield put({ type: FETCH_END });
+        if (onSuccess) {
+            if (Array.isArray(onSuccess)) {
+                for (let index = 0; index < onSuccess.length; index++) {
+                    yield put(onSuccess[index]);
+                }
+            } else {
+                yield put(onSuccess);
+            }
+        }
     } catch (error) {
         yield put({
             type: `${type}_FAILURE`,
@@ -62,12 +70,20 @@ export function* handleFetch(dataProvider, action) {
             requestPayload: payload,
             meta: {
                 ...meta,
-                ...onFailure,
                 fetchResponse: restType,
                 fetchStatus: FETCH_ERROR,
             },
         });
         yield put({ type: FETCH_ERROR, error });
+        if (onFailure) {
+            if (Array.isArray(onFailure)) {
+                for (let index = 0; index < onFailure.length; index++) {
+                    yield put(onFailure[index]);
+                }
+            } else {
+                yield put(onFailure);
+            }
+        }
     } finally {
         if (yield cancelled()) {
             yield put({ type: FETCH_CANCEL });

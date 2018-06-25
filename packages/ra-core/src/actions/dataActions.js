@@ -1,3 +1,5 @@
+import { reset } from 'redux-form';
+
 import {
     GET_LIST,
     GET_ONE,
@@ -9,6 +11,9 @@ import {
     GET_MANY,
     GET_MANY_REFERENCE,
 } from '../dataFetchActions';
+import { showNotification } from './notificationActions';
+import resolveRedirectTo from '../util/resolveRedirectTo';
+import { refreshView } from './uiActions';
 
 export const CRUD_GET_LIST = 'RA/CRUD_GET_LIST';
 export const CRUD_GET_LIST_LOADING = 'RA/CRUD_GET_LIST_LOADING';
@@ -58,30 +63,52 @@ export const CRUD_CREATE_LOADING = 'RA/CRUD_CREATE_LOADING';
 export const CRUD_CREATE_FAILURE = 'RA/CRUD_CREATE_FAILURE';
 export const CRUD_CREATE_SUCCESS = 'RA/CRUD_CREATE_SUCCESS';
 
-export const crudCreate = (resource, data, basePath, redirectTo = 'edit') => ({
+export const crudCreate = (
+    resource,
+    data,
+    basePath,
+    redirectTo = 'edit',
+    onSuccess = [
+        showNotification('ra.notification.created', 'info', {
+            messageArgs: {
+                smart_count: 1,
+            },
+            undoable: false,
+        }),
+        (payload, requestPayload) =>
+            redirectTo
+                ? resolveRedirectTo(
+                      redirectTo,
+                      basePath,
+                      payload
+                          ? payload.id ||
+                            (payload.data ? payload.data.id : null)
+                          : requestPayload ? requestPayload.id : null,
+                      payload && payload.data
+                          ? payload.data
+                          : requestPayload && requestPayload.data
+                            ? requestPayload.data
+                            : null
+                  )
+                : reset('record-form'),
+    ],
+    onFailure = [
+        showNotification('ra.notification.http_error', 'warning', {
+            messageArgs: {
+                smart_count: 1,
+            },
+            undoable: false,
+        }),
+        refreshView(),
+    ]
+) => ({
     type: CRUD_CREATE,
     payload: { data },
     meta: {
         resource,
         fetch: CREATE,
-        onSuccess: {
-            notification: {
-                body: 'ra.notification.created',
-                level: 'info',
-                messageArgs: {
-                    smart_count: 1,
-                },
-            },
-            redirectTo,
-            basePath,
-        },
-        onFailure: {
-            notification: {
-                body: 'ra.notification.http_error',
-                level: 'warning',
-            },
-            refresh: true,
-        },
+        onSuccess,
+        onFailure,
     },
 });
 
@@ -97,7 +124,8 @@ export const crudUpdate = (
     data,
     previousData,
     basePath,
-    redirectTo = 'show'
+    redirectTo = 'show',
+    customActions = {}
 ) => ({
     type: CRUD_UPDATE,
     payload: { id, data, previousData },
@@ -114,6 +142,9 @@ export const crudUpdate = (
             },
             redirectTo,
             basePath,
+            customAction: customActions.onSuccess
+                ? customActions.onSuccess
+                : customActions,
         },
         onFailure: {
             notification: {
@@ -121,6 +152,9 @@ export const crudUpdate = (
                 level: 'warning',
             },
             refresh: true,
+            customAction: customActions.onFailure
+                ? customActions.onFailure
+                : customActions,
         },
     },
 });
@@ -136,7 +170,8 @@ export const crudUpdateMany = (
     ids,
     data,
     basePath,
-    refresh = true
+    refresh = true,
+    customActions
 ) => ({
     type: CRUD_UPDATE_MANY,
     payload: { ids, data },
@@ -155,6 +190,9 @@ export const crudUpdateMany = (
             basePath,
             refresh,
             unselectAll: true,
+            customAction: customActions.onSuccess
+                ? customActions.onSuccess
+                : customActions,
         },
         onFailure: {
             notification: {
@@ -162,6 +200,9 @@ export const crudUpdateMany = (
                 level: 'warning',
             },
             refresh: true,
+            customAction: customActions.onFailure
+                ? customActions.onFailure
+                : customActions,
         },
     },
 });
@@ -177,7 +218,8 @@ export const crudDelete = (
     id,
     previousData,
     basePath,
-    redirectTo = 'list'
+    redirectTo = 'list',
+    customActions
 ) => ({
     type: CRUD_DELETE,
     payload: { id, previousData },
@@ -194,6 +236,9 @@ export const crudDelete = (
             },
             redirectTo,
             basePath,
+            customAction: customActions.onSuccess
+                ? customActions.onSuccess
+                : customActions,
         },
         onFailure: {
             notification: {
@@ -201,6 +246,9 @@ export const crudDelete = (
                 level: 'warning',
             },
             refresh: true,
+            customAction: customActions.onFailure
+                ? customActions.onFailure
+                : customActions,
         },
     },
 });
@@ -211,7 +259,13 @@ export const CRUD_DELETE_MANY_FAILURE = 'RA/CRUD_DELETE_MANY_FAILURE';
 export const CRUD_DELETE_MANY_SUCCESS = 'RA/CRUD_DELETE_MANY_SUCCESS';
 export const CRUD_DELETE_MANY_OPTIMISTIC = 'RA/CRUD_DELETE_MANY_OPTIMISTIC';
 
-export const crudDeleteMany = (resource, ids, basePath, refresh = true) => ({
+export const crudDeleteMany = (
+    resource,
+    ids,
+    basePath,
+    refresh = true,
+    customActions
+) => ({
     type: CRUD_DELETE_MANY,
     payload: { ids },
     meta: {
@@ -228,6 +282,9 @@ export const crudDeleteMany = (resource, ids, basePath, refresh = true) => ({
             basePath,
             refresh,
             unselectAll: true,
+            customAction: customActions.onSuccess
+                ? customActions.onSuccess
+                : customActions,
         },
         onFailure: {
             notification: {
@@ -235,6 +292,9 @@ export const crudDeleteMany = (resource, ids, basePath, refresh = true) => ({
                 level: 'warning',
             },
             refresh: true,
+            customAction: customActions.onFailure
+                ? customActions.onFailure
+                : customActions,
         },
     },
 });

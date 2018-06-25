@@ -20,10 +20,19 @@ export function* handleUndoRace(undoableAction) {
         type: `${action.type}_OPTIMISTIC`,
         meta: {
             ...metaWithoutSuccessSideEffects,
-            ...onSuccess,
             optimistic: true,
         },
     });
+
+    if (onSuccess) {
+        if (Array.isArray(onSuccess)) {
+            for (let index = 0; index < onSuccess.length; index++) {
+                yield put(onSuccess[index]);
+            }
+        } else {
+            yield put(onSuccess);
+        }
+    }
     // wait for undo or delay
     const { complete } = yield race({
         undo: take(UNDO),
