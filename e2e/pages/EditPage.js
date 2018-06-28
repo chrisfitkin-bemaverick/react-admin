@@ -7,7 +7,7 @@ export default url => driver => ({
         inputs: By.css(`.ra-input`),
         tabs: By.css(`.form-tab`),
         submitButton: By.css(".edit-page button[type='submit']"),
-        tab: index => By.css(`button.form-tab:nth-of-type(${index})`),
+        tab: index => By.css(`.form-tab:nth-of-type(${index})`),
         title: By.css('.title'),
     },
 
