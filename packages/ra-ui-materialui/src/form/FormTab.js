@@ -18,6 +18,8 @@ const FormTab = ({ children, ...rest }) => (
 
 FormTab.propTypes = {
     children: PropTypes.node,
+    label: PropTypes.string,
+    path: PropTypes.string,
 };
 
 export default FormTab;
