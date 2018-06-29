@@ -5,7 +5,7 @@ import editPageFactory from '../pages/EditPage';
 import loginPageFactory from '../pages/LoginPage';
 import showPageFactory from '../pages/ShowPage';
 
-describe('Tabs with routing', () => {
+describe('Tabs with custom routing', () => {
     const EditPage = editPageFactory('http://localhost:8083/#/users/1')(driver);
     const ShowPage = showPageFactory(
         'http://localhost:8083/#/users/1/show',
