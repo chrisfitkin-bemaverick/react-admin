@@ -9,26 +9,11 @@ const translate = label => label;
 const muiTheme = { textField: { errorColor: 'red' } };
 
 describe('<TabbedForm />', () => {
-    it('should render tabs', () => {
-        const wrapper = shallow(
-            <TabbedForm
-                translate={translate}
-                muiTheme={muiTheme}
-                tabsWithErrors={[]}
-            >
-                <FormTab />
-                <FormTab />
-            </TabbedForm>
-        );
-        const tabsContainer = wrapper.find('WithStyles(Tabs)');
-        assert.equal(tabsContainer.length, 1);
-        const tabs = wrapper.find('FormTab');
-        assert.equal(tabs.length, 1);
-    });
-
     it('should display <Toolbar />', () => {
         const wrapper = shallow(
             <TabbedForm
+                location={{}}
+                match={{}}
                 translate={translate}
                 muiTheme={muiTheme}
                 tabsWithErrors={[]}
@@ -46,6 +31,8 @@ describe('<TabbedForm />', () => {
         const handleSubmit = () => {};
         const wrapper1 = shallow(
             <TabbedForm
+                location={{}}
+                match={{}}
                 translate={translate}
                 submitOnEnter={false}
                 handleSubmit={handleSubmit}
@@ -58,6 +45,8 @@ describe('<TabbedForm />', () => {
 
         const wrapper2 = shallow(
             <TabbedForm
+                location={{}}
+                match={{}}
                 translate={translate}
                 submitOnEnter
                 handleSubmit={handleSubmit}
@@ -72,6 +61,8 @@ describe('<TabbedForm />', () => {
     it('should set the style of an inactive Tab button with errors', () => {
         const wrapper = shallow(
             <TabbedForm
+                location={{ pathname: '/posts/12' }}
+                match={{ url: '/posts/12' }}
                 translate={translate}
                 muiTheme={muiTheme}
                 tabsWithErrors={['tab2']}
@@ -92,6 +83,8 @@ describe('<TabbedForm />', () => {
     it('should not set the style of an active Tab button with errors', () => {
         const wrapper = shallow(
             <TabbedForm
+                location={{ pathname: '/posts/12' }}
+                match={{ url: '/posts/12' }}
                 translate={translate}
                 muiTheme={muiTheme}
                 tabsWithErrors={['tab1']}
